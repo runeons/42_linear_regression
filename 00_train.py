@@ -20,6 +20,7 @@ class Data:
         self.fig_size = fig_size
         self.image_path = image_path
         os.makedirs(image_path, exist_ok=True)
+        self.normed_full_data = self.normalise_full_data()
         self.normed_train_set = self.normalise_train_set()
 
     def load(self):
@@ -61,15 +62,23 @@ class Data:
             self.save_plot(name + "_histogram")
         plt.show()
 
+    def norm_min_max(self, x):
+        return (x - x.min()) / (x.max() - x.min())
+    
+    def norm_max(self, x):
+        return x / x.max()
+    
     def normalise_train_set(self):
-        return self.train_set / self.train_set.max()
-        # return (self.train_set - self.train_set.min()) / (self.train_set.max() - self.train_set.min()) 
+        return self.norm_min_max(self.train_set)
 
-# def to_file(t0, t1):
-#     s = f"{t0} {t1}"
-#     f = open("thetas", "w+")
-#     f.write(s)
-#     f.close()
+    def normalise_full_data(self):
+        return self.norm_min_max(self.full_data)
+
+def to_file(t0, t1):
+    s = f"{t0} {t1}"
+    f = open("thetas", "w+")
+    f.write(s)
+    f.close()
 
 # def cost_plot(summary):
 #     plt.figure(figsize=(10, 6))
@@ -77,27 +86,62 @@ class Data:
 #     plt.grid(True)
 #     plt.show()
 
-# class LinReg:
-#     def __init__(self):
-#         self.y_min = self._coordinates_to_int(0, 0)
-#         self.y_max = self._coordinates_to_int(65535, 65535)
-#         self.denormalise_max = 4294967295
+class LinearRegression:
+    def __init__(self, data):
+        self.data = data
+        self.alpha = 0.1
+        self.thetas = [1, 1]
+        self.kms = self.data["km"].to_numpy()
+        self.prices = self.data["price"].to_numpy()
+        self.m = len(self.kms)
+        self.convergence = 0.000001
+        self.cost_plot = []
+    
+    def plot_cost(self):
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.cost_plot)
+        plt.grid(True)
+        plt.show()        
+
+    def predict(self, x, thetas):
+        return thetas[0] + x * thetas[1]
+
+    def get_new_thetas(self):
+        tmp_thetas = [1, 1]
+        cost = self.predict(self.kms, self.thetas) - self.prices
+        self.cost_plot.append(np.sum(cost ** 2) / self.m)
+        tmp_thetas[0] = self.thetas[0] - (self.alpha * np.sum(cost) / self.m)
+        tmp_thetas[1] = self.thetas[1] - (self.alpha * np.sum(cost * self.kms) / self.m)
+        return tmp_thetas
+
+    def launch(self):
+        for i in range(2000):
+            tmp_thetas = self.get_new_thetas()
+            if (i % 100 == 0):
+                print(i, self.thetas, tmp_thetas)
+            if (np.abs(np.array(tmp_thetas) - np.array(self.thetas)) < self.convergence).all(): # attention arrondis
+                break
+            self.thetas = tmp_thetas
+        return self.thetas
 
 def main():
     d = Data("dataset/data.csv")
     d.summary(d.train_set)
     # d.scatter(d.train_set, "km", "price", "init train_set")
     # d.histogram(d.train_set, 6, "init train_set")
-    d.normalise_train_set()
+    # d_full = d.normed_full_data
     d_train = d.normed_train_set.reset_index()
-    print(d_train.head())
-    # print(type(d_train))                    # DataFrame
-    # print(type(d_train["km"]))              # Series
-    # print(type(d_train["km"].to_numpy()))   # ndarray
-    kms = d_train["km"].to_numpy()
-    prices = d_train["price"].to_numpy()
-    # t0, t1 = train(kms, prices, 0.01, 4000)
-    # to_file(t0, t1)
+
+    lr = LinearRegression(d_train)
+    thetas = lr.launch()
+    x = 42000
+    y = thetas[0] + thetas[1] * x
+    # y = y * (d.train_set["price"].max() - d.train_set["price"].min()) + d.train_set["price"].min()  # Dénormalise le prix
+    print(thetas)
+    print(f"{Colors.RES}The estimated price for a car that has a mileage of {Colors.GREEN}{x}{Colors.RES} is {Colors.GREEN}{y}{Colors.RES}.\n")
+    to_file(thetas[0], thetas[1])
+    lr.plot_cost()
+    # np.save("thetas2", thetas)
     # to_file(5, 8)
 
 if (__name__ == "__main__"):
