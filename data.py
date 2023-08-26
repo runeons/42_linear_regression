@@ -34,7 +34,6 @@ class Data:
 
     def save_plot(self, name):
         path = os.path.join(self.image_path, name + ".png")
-        # plt.tight_layout()
         plt.savefig(path, format="png", dpi=300)
         print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
 

@@ -64,7 +64,6 @@ class LinearRegression:
 
     def save_plot(self, name):
         path = os.path.join("./images/", name + ".png")
-        # plt.tight_layout()
         plt.savefig(path, format="png", dpi=300)
         print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
 

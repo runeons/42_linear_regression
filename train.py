@@ -1,4 +1,3 @@
-from utils_colors import Colors
 from data import Data
 from linear_regression import LinearRegression
 
@@ -19,7 +18,7 @@ def main():
     lr.simple_plot(lr.conv, "Convergence", "iterations", "convergence")
     lr.evaluate()
 
-    # Save to predict
+    # Save coefficients
     lr.save()
 
 if (__name__ == "__main__"):
