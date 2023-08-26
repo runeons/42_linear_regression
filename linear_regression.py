@@ -1,45 +1,108 @@
-import os
-import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
-from utils_constants import IMAGES_PATH, FIG_SIZE, C2
+import matplotlib.pyplot as plt
 from utils_colors import Colors
-from utils_plot import scatter_plot, histogram_plot
 
-def init():
-    os.makedirs(IMAGES_PATH, exist_ok=True)
-    np.random.seed(42) # pour generer toujours le meme set de test
+class LinearRegression:
+    def __init__(self, x, y):
+        self.init_x = x
+        self.init_y = y
+        self.max_x = x.max()
+        self.max_y = y.max()
+        self.x = x
+        self.y = y
+        self.alpha = 0.1
+        self.epochs = 1000000
+        self.t = [0.0, 0.0]
+        self.m = len(self.x)
+        self.convergence = 0.000001
+        self.cost = []
+        self.conv = []
+        self.theta0 = []
+        self.theta1 = []
 
-def load_data(csv_path):
-    return pd.read_csv(csv_path)
+    def norm_max(self, x):
+        return x / x.max()
 
-def explore_data(data):
-    print(data.head())
-    print(data.info())
-    scatter_plot(data, "init_scatter_plot")
-    histogram_plot(data, "init_histogram_plot")
+    def norm_min_max(self, x):
+        return (x - x.min()) / (x.max() - x.min())
 
-def split_train_test(data, ratio):
-    shuf_i = np.random.permutation(len(data))
-    test_size = int(len(data) * ratio)
-    test_i = shuf_i[:test_size]
-    train_i = shuf_i[test_size:]
-    return data.iloc[train_i], data.iloc[test_i]
+    def norm_x_y(self):
+        self.x = self.norm_max(self.x)
+        self.y = self.norm_max(self.y)
 
-def main():
-    try:
-        init()
-        full_data = load_data(os.path.join("dataset", "data.csv"))
-        # explore_data(data)
-        train_set, test_set = split_train_test(full_data, 0.2)
-        train_set = train_set.reset_index()
-        print(train_set.head())
+    def predict(self, x, thetas):
+        return thetas[0] + x * thetas[1]
 
+    def find_thetas(self):
+        for i in range(self.epochs):
+            predicted_y = self.predict(self.x, self.t)
+            d_1 = np.sum(((predicted_y - self.y) * self.x)) / self.m
+            d_0 = np.sum(((predicted_y - self.y))) / self.m
+            self.t = [self.t[0] - self.alpha * d_0, self.t[1] - self.alpha * d_1]
+            self.theta0.append(self.t[0])
+            self.theta1.append(self.t[1])
+            cost = np.sum(((predicted_y - self.y) ** 2) * (2 / self.m))
+            self.cost.append(cost)
+            if i != 0:
+                conv = self.cost[-1] - self.cost[-2]
+                self.conv.append(conv)
+                if abs(conv) < self.convergence:
+                    print(f"{Colors.BLUE}[INFO] gradient descent finished in {i} steps{Colors.RES}")
+                    break
+    
+    def renorm_thetas(self):
+        self.t[0] = self.t[0] * self.max_y
+        self.t[1] = self.t[1] * (self.max_y / self.max_x)
 
-    except ValueError as e:
-        print(e)
+    def launch(self):
+        self.norm_x_y()
+        self.find_thetas()
+        self.renorm_thetas()
 
-if (__name__ == "__main__"):
-    main()
+    def save(self):
+        np.save("thetas", self.t)
+
+    def plot_line(self):
+        plt.plot(self.init_x, self.init_y, 'o', alpha=0.5, color='green')
+        plt.plot(self.init_x, self.t[1] * self.init_x + self.t[0])
+        plt.title("Linear function")
+        plt.xlabel("kms")
+        plt.ylabel("prices")
+        plt.show()
+    
+    def plot_cost(self):
+        plt.figure(figsize=(10, 6))
+        plt.title("Cost function")
+        plt.xlabel("iterations")
+        plt.ylabel("mean squared error")
+        plt.plot(self.cost)
+        plt.grid(True)
+        plt.show()        
+    
+    def plot_conv(self):
+        plt.figure(figsize=(10, 6))
+        plt.title("Convergence")
+        plt.xlabel("iterations")
+        plt.ylabel("convergence")
+        plt.plot(self.conv)
+        plt.grid(True)
+        plt.show()        
+    
+    def plot_theta0(self):
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.theta0)
+        plt.grid(True)
+        plt.show()        
+    
+    def plot_theta1(self):
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.theta1)
+        plt.grid(True)
+        plt.show()        
+
+    def evaluate(self):
+        pass
+        # sse = 
+        # ssr = np.sum((self.predict(self.x, self.t) - self.y) ** 2)
+        # r = (sst - ssr) / sst
+        # print(r)

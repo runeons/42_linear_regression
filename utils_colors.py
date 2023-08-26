@@ -41,5 +41,6 @@ class Colors:
     ERROR       = B_RED
     WARNING     = B_ORANGE
     DATASET     = PINK
-    PREDICT     = BLUE
+    INFO        = GREEN
+    INFO        = GREEN
     RES         = "\033[0m"
