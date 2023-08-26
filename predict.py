@@ -20,7 +20,7 @@ def main():
                 exit()
             x = int(prompt)
             if x < 0:
-                print(f"{Colors.WARNING}[WARNING] This does not make any sense.{Colors.RES}")
+                print(f"{Colors.WARNING}[WARNING] A car should not have a negative mileage.{Colors.RES}")
             y = predict(x, thetas[0], thetas[1])
             print(f"{Colors.RES}The estimated price for a car that has a mileage of {Colors.PINK}{x}{Colors.RES} km is {Colors.PINK}{y:.2f}{Colors.RES}.\n")
         except ValueError:

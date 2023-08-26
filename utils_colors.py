@@ -39,8 +39,7 @@ class Colors:
     # SPECIAL COLORS
 
     ERROR       = B_RED
-    WARNING     = B_ORANGE
+    WARNING     = ORANGE
     DATASET     = PINK
-    INFO        = GREEN
     INFO        = GREEN
     RES         = "\033[0m"
