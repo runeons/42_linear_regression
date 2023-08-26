@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils_colors import Colors
-from utils_constants import C2
 
 class Data:
     def __init__(self, data_path, x, y, image_path="./images/", fig_size=(10, 7)):
@@ -28,28 +27,28 @@ class Data:
         return self.full_data.iloc[train_i], self.full_data.iloc[test_i]
 
     def summary(self, d_set):
-        print(f"{Colors.DATASET}[DATASET SUMMARY] head:\n{Colors.RES}{d_set.head()}")
-        print(f"{Colors.DATASET}[DATASET SUMMARY] count:\n{Colors.RES}{d_set.count()}")
-        print(f"{Colors.DATASET}[DATASET SUMMARY] min:\n{Colors.RES}{d_set.min()}")
-        print(f"{Colors.DATASET}[DATASET SUMMARY] max:\n{Colors.RES}{d_set.max()}")
+        print(f"{Colors.DATASET}[INFO] Dataset summary - head:\n{Colors.RES}{d_set.head()}")
+        print(f"{Colors.DATASET}[INFO] Dataset summary - count:\n{Colors.RES}{d_set.count()}")
+        print(f"{Colors.DATASET}[INFO] Dataset summary - min:\n{Colors.RES}{d_set.min()}")
+        print(f"{Colors.DATASET}[INFO] Dataset summary - max:\n{Colors.RES}{d_set.max()}")
 
     def save_plot(self, name):
         path = os.path.join(self.image_path, name + ".png")
         plt.tight_layout()
         plt.savefig(path, format="png", dpi=300)
-        print(f"{Colors.GREEN}Plot {Colors.RES}{name} {Colors.GREEN}saved{Colors.RES}")
+        print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
 
     def scatter(self, x, y, name, save=True):
         plt.plot(x, y, 'o', alpha=0.5, color='green')
         plt.title("Initial data")
-        # plt.xlabel(x) # find name of column
-        # plt.ylabel(y) # find name of column
+        plt.xlabel(self.x.name)
+        plt.ylabel(self.y.name)
         if save == True:
             self.save_plot(name + "_scatter")
         plt.show()
 
     def histogram(self, data, bins, name, save=True):
-        data.hist(bins=bins, figsize=self.fig_size, color=C2) # 6 car 24 paires de données, donc pratique
+        data.hist(bins=bins, figsize=self.fig_size, color="#B15B7C")
         if save == True:
             self.save_plot(name + "_histogram")
         plt.show()

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from utils_colors import Colors
@@ -10,46 +11,42 @@ class LinearRegression:
         self.max_y = y.max()
         self.x = x
         self.y = y
-        self.alpha = 0.1
-        self.epochs = 1000000
         self.t = [0.0, 0.0]
+        self.alpha = 0.1
+        self.max_epochs = 1000000
+        self.convergence = 0.0000000001
         self.m = len(self.x)
-        self.convergence = 0.000001
         self.cost = []
         self.conv = []
         self.theta0 = []
         self.theta1 = []
 
-    def norm_max(self, x):
-        return x / x.max()
-
-    def norm_min_max(self, x):
-        return (x - x.min()) / (x.max() - x.min())
-
     def norm_x_y(self):
-        self.x = self.norm_max(self.x)
-        self.y = self.norm_max(self.y)
+        self.x = self.x / self.x.max()
+        self.y = self.y / self.y.max()
 
     def predict(self, x, thetas):
         return thetas[0] + x * thetas[1]
 
     def find_thetas(self):
-        for i in range(self.epochs):
+        for i in range(self.max_epochs):
             predicted_y = self.predict(self.x, self.t)
             d_1 = np.sum(((predicted_y - self.y) * self.x)) / self.m
             d_0 = np.sum(((predicted_y - self.y))) / self.m
             self.t = [self.t[0] - self.alpha * d_0, self.t[1] - self.alpha * d_1]
-            self.theta0.append(self.t[0])
-            self.theta1.append(self.t[1])
             cost = np.sum(((predicted_y - self.y) ** 2) * (2 / self.m))
             self.cost.append(cost)
+            self.theta0.append(self.t[0])
+            self.theta1.append(self.t[1])
             if i != 0:
                 conv = self.cost[-1] - self.cost[-2]
                 self.conv.append(conv)
                 if abs(conv) < self.convergence:
-                    print(f"{Colors.BLUE}[INFO] gradient descent finished in {i} steps{Colors.RES}")
+                    print(f"{Colors.BLUE}[INFO] The gradient descent finished in {i} steps{Colors.RES}")
                     break
-    
+                if i % 100 == 0:
+                    print(f"{Colors.GREY}[INFO] iteration {i}: cost = {cost}, conv = {conv}, thetas = {self.t}{Colors.RES}")
+                
     def renorm_thetas(self):
         self.t[0] = self.t[0] * self.max_y
         self.t[1] = self.t[1] * (self.max_y / self.max_x)
@@ -62,47 +59,37 @@ class LinearRegression:
     def save(self):
         np.save("thetas", self.t)
 
-    def plot_line(self):
+    def evaluate(self):
+        predicted_y = self.predict(self.init_x, self.t)
+        ss_reg = np.sum(((predicted_y - np.mean(self.init_y)) ** 2))
+        ss_tot = np.sum(((self.init_y - np.mean(self.init_y)) ** 2))
+        rsquared = ss_reg / ss_tot
+        print(f"{Colors.BLUE}[INFO] The coefficient of determination is {rsquared * 100:.2f}%{Colors.RES}")
+
+    def save_plot(self, name):
+        path = os.path.join("./images/", name + ".png")
+        plt.tight_layout()
+        plt.savefig(path, format="png", dpi=300)
+        print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
+
+    def plot_line(self, save=True):
         plt.plot(self.init_x, self.init_y, 'o', alpha=0.5, color='green')
         plt.plot(self.init_x, self.t[1] * self.init_x + self.t[0])
         plt.title("Linear function")
         plt.xlabel("kms")
         plt.ylabel("prices")
+        if save == True:
+            self.save_plot("linear_regression")
         plt.show()
     
-    def plot_cost(self):
+    def simple_plot(self, val_array, title, xlabel, ylabel, save=True):
         plt.figure(figsize=(10, 6))
-        plt.title("Cost function")
-        plt.xlabel("iterations")
-        plt.ylabel("mean squared error")
-        plt.plot(self.cost)
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.plot(val_array)
         plt.grid(True)
+        if save == True:
+            self.save_plot(title)
         plt.show()        
     
-    def plot_conv(self):
-        plt.figure(figsize=(10, 6))
-        plt.title("Convergence")
-        plt.xlabel("iterations")
-        plt.ylabel("convergence")
-        plt.plot(self.conv)
-        plt.grid(True)
-        plt.show()        
-    
-    def plot_theta0(self):
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.theta0)
-        plt.grid(True)
-        plt.show()        
-    
-    def plot_theta1(self):
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.theta1)
-        plt.grid(True)
-        plt.show()        
-
-    def evaluate(self):
-        pass
-        # sse = 
-        # ssr = np.sum((self.predict(self.x, self.t) - self.y) ** 2)
-        # r = (sst - ssr) / sst
-        # print(r)

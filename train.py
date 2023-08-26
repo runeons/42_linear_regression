@@ -6,17 +6,17 @@ def main():
     # Data exploration
     dt = Data("dataset/data.csv", "km", "price")
     dt.summary(dt.full_data)
-    dt.scatter(dt.full_data["km"], dt.full_data["price"], "train_set")
-    dt.histogram(dt.train_set, 6, "train_set")
+    dt.scatter(dt.full_data["km"], dt.full_data["price"], "initial")
+    dt.histogram(dt.full_data, 6, "initial")
 
-    # Run linear regression
+    # Linear regression
     lr = LinearRegression(dt.x, dt.y)
     lr.launch()
     lr.plot_line()
-    lr.plot_cost()
-    lr.plot_conv()
-    # lr.plot_theta0()
-    # lr.plot_theta1()
+
+    # Analysis
+    lr.simple_plot(lr.cost, "Cost function", "iterations", "mean squared error")
+    lr.simple_plot(lr.conv, "Convergence", "iterations", "convergence")
     lr.evaluate()
 
     # Save to predict
