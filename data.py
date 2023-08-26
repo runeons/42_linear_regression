@@ -34,21 +34,25 @@ class Data:
 
     def save_plot(self, name):
         path = os.path.join(self.image_path, name + ".png")
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.savefig(path, format="png", dpi=300)
         print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
 
     def scatter(self, x, y, name, save=True):
+        plt.figure()
         plt.plot(x, y, 'o', alpha=0.5, color='green')
         plt.title("Initial data")
         plt.xlabel(self.x.name)
         plt.ylabel(self.y.name)
         if save == True:
             self.save_plot(name + "_scatter")
-        plt.show()
+        else:
+            plt.show()
 
     def histogram(self, data, bins, name, save=True):
+        plt.figure()
         data.hist(bins=bins, figsize=self.fig_size, color="#B15B7C")
         if save == True:
             self.save_plot(name + "_histogram")
-        plt.show()
+        else:
+            plt.show()

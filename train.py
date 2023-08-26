@@ -22,9 +22,5 @@ def main():
     # Save to predict
     lr.save()
 
-    test = 42000
-    print(f"{Colors.RES}The estimated price for a car that has a mileage of {Colors.GREEN}{test}{Colors.RES} is {Colors.GREEN}{lr.predict(test, lr.t)}{Colors.RES}.\n")
-
-
 if (__name__ == "__main__"):
     main()

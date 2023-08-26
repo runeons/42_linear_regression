@@ -18,8 +18,6 @@ class LinearRegression:
         self.m = len(self.x)
         self.cost = []
         self.conv = []
-        self.theta0 = []
-        self.theta1 = []
 
     def norm_x_y(self):
         self.x = self.x / self.x.max()
@@ -36,8 +34,6 @@ class LinearRegression:
             self.t = [self.t[0] - self.alpha * d_0, self.t[1] - self.alpha * d_1]
             cost = np.sum(((predicted_y - self.y) ** 2) * (2 / self.m))
             self.cost.append(cost)
-            self.theta0.append(self.t[0])
-            self.theta1.append(self.t[1])
             if i != 0:
                 conv = self.cost[-1] - self.cost[-2]
                 self.conv.append(conv)
@@ -68,11 +64,12 @@ class LinearRegression:
 
     def save_plot(self, name):
         path = os.path.join("./images/", name + ".png")
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.savefig(path, format="png", dpi=300)
         print(f"{Colors.GREEN}[INFO] Plot {name} saved{Colors.RES}")
 
     def plot_line(self, save=True):
+        plt.figure()
         plt.plot(self.init_x, self.init_y, 'o', alpha=0.5, color='green')
         plt.plot(self.init_x, self.t[1] * self.init_x + self.t[0])
         plt.title("Linear function")
@@ -80,7 +77,8 @@ class LinearRegression:
         plt.ylabel("prices")
         if save == True:
             self.save_plot("linear_regression")
-        plt.show()
+        else:
+            plt.show()
     
     def simple_plot(self, val_array, title, xlabel, ylabel, save=True):
         plt.figure(figsize=(10, 6))
@@ -91,5 +89,6 @@ class LinearRegression:
         plt.grid(True)
         if save == True:
             self.save_plot(title)
-        plt.show()        
+        else:
+            plt.show()        
     
