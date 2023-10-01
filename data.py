@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils_colors import Colors
@@ -8,7 +7,6 @@ class Data:
     def __init__(self, data_path, x, y, image_path="./images/", fig_size=(10, 7)):
         self.data_path = data_path
         self.full_data = self.load()
-        self.train_set, self.test_set = self.split_sets(0.2)
         self.x = self.full_data[x]
         self.y = self.full_data[y]
         self.fig_size = fig_size
@@ -17,14 +15,6 @@ class Data:
 
     def load(self):
         return pd.read_csv(self.data_path)
-
-    def split_sets(self, test_ratio):
-        np.random.seed(42)
-        rand_i = np.random.permutation(len(self.full_data))
-        test_size = int(len(self.full_data) * test_ratio)
-        test_i = rand_i[:test_size]
-        train_i = rand_i[test_size:]
-        return self.full_data.iloc[train_i], self.full_data.iloc[test_i]
 
     def summary(self, d_set):
         print(f"{Colors.DATASET}[INFO] Dataset summary - head:\n{Colors.RES}{d_set.head()}")
