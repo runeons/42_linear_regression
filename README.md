@@ -20,4 +20,4 @@ This is a 42 project about predicting the price of a car.
     
 #### Authors
 
-- [@tsantoni](https://www.github.com/voltaire-stn)
+- [@tsantoni](https://www.github.com/runeons)
